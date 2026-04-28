@@ -57,8 +57,8 @@ def metric_title_with_tooltip(title):
 
 app.layout = html.Div([
     html.Div([
-        html.H1("INTELLIGENCE DASHBOARD", className="cyber-title", style={"textAlign": "center"}),
-        html.P("Real-time telemetry and advanced KPI modeling.", style={"color": "#8b949e", "fontSize": "1.1rem", "marginBottom": "2rem", "textAlign": "center"}),
+        html.H1("CUSTOMER SERVICE CHATBOT PERFORMANCE HUB", className="cyber-title", style={"textAlign": "center"}),
+        html.P("Tracking automated resolutions and customer satisfaction at scale.", style={"color": "#8b949e", "fontSize": "1.1rem", "marginBottom": "2rem", "textAlign": "center"}),
         
         # Top Filters
         dbc.Row([
