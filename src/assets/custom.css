@@ -59,24 +59,30 @@ body {
 
 /* Dash Core Components Fixes & Styling */
 .Select-control {
-    background-color: white !important;
+    background-color: rgba(15, 42, 85, 0.6) !important;
     border: 1px solid rgba(35, 173, 224, 0.5) !important;
     border-radius: 8px !important;
+    color: white !important;
     box-shadow: 0 0 10px rgba(35, 173, 224, 0.1) !important;
+    transition: all 0.3s ease !important;
+}
+.Select-control:hover {
+    border-color: rgba(35, 173, 224, 0.9) !important;
+    box-shadow: 0 0 15px rgba(35, 173, 224, 0.3) !important;
 }
 .Select-menu-outer {
-    background-color: white !important;
+    background-color: #0F2A55 !important;
     border: 1px solid #23ADE0 !important;
-    color: black !important;
+    color: white !important;
 }
-.Select-value-label {
-    color: black !important;
+.Select-value-label, .Select-value {
+    color: white !important;
 }
 .Select-placeholder {
-    color: #666 !important;
+    color: #8b949e !important;
 }
 .Select.has-value.Select--single > .Select-control .Select-value .Select-value-label, .Select.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
-    color: black !important;
+    color: white !important;
 }
 
 /* Datepicker Overlap Fix */

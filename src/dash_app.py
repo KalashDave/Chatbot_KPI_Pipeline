@@ -33,23 +33,23 @@ server = app.server
 
 # Metrics Metadata for Tooltips
 metrics_info = {
-    "Automation": "What percentage of enquiries the chatbot resolves completely without human intervention.\nBenchmark: 70-85%",
-    "FCR": "First Contact Resolution. Were the enquiries actually resolved?\nBenchmark: > 65%",
-    "CSAT": "Customer Satisfaction Score based on post-chat ratings.\nBenchmark: > 80%",
-    "Deflection": "How many support tickets were prevented by the chatbot.\nBenchmark: > 50%",
-    "Volume": "Total number of chatbot conversations in the selected period.\nBenchmark: Growing Trend",
-    "Handling": "How long a chatbot conversation takes on average.\nBenchmark: 2-5 min",
-    "Takeover": "Shows how often a chatbot has to hand a conversation over to a human agent.\nBenchmark: < 25%",
-    "Fallback": "How often the chatbot was unable to understand an enquiry and responded with a generic error.\nBenchmark: < 10%",
-    "Conversion": "How often the chatbot triggers a desired action (e.g. demo booking, purchase).\nBenchmark: 5-15%",
-    "Return Users": "How many users voluntarily use the chatbot a second time or more.\nBenchmark: > 30%"
+    "Automation Rate": "What it is: The percentage of inquiries resolved entirely by the AI without human intervention.\nWhy it matters: High automation directly reduces support costs and scales operations.\nBenchmark: 70-85% for well-optimized systems.",
+    "First Contact Resolution": "What it is: Percentage of issues successfully resolved on the very first interaction.\nWhy it matters: A high FCR means the chatbot is actually helpful, rather than just deflecting customers who later return frustrated.\nBenchmark: > 65%",
+    "Customer Satisfaction": "What it is: The percentage of positive ratings (4 or 5 stars) given by users after a chat.\nWhy it matters: Efficiency metrics (like Automation) mean nothing if the customer experience is poor.\nBenchmark: > 80%",
+    "Ticket Deflection": "What it is: The percentage of conversations that would have become support tickets but were resolved by the AI.\nWhy it matters: This is the strongest indicator of direct ROI and cost savings.\nBenchmark: > 50%",
+    "Volume": "What it is: The total number of chatbot interactions over the selected period.\nWhy it matters: Indicates user adoption. A growing trend means customers trust the widget.\nBenchmark: Steadily growing.",
+    "Average Handling Time": "What it is: The average duration of a chat from start to finish.\nWhy it matters: Too short may indicate frustration/drop-offs; too long indicates a confusing conversation loop.\nBenchmark: 2-5 minutes.",
+    "Human Takeover Rate": "What it is: How often a conversation is escalated to a live human agent.\nWhy it matters: Identifies the limitations of the AI's current knowledge base.\nBenchmark: < 25%",
+    "Fallback Rate": "What it is: How often the AI fails to understand the user's intent entirely.\nWhy it matters: A high fallback rate indicates a poorly trained NLP model or confusing user queries.\nBenchmark: < 10%",
+    "Conversion Rate": "What it is: The percentage of users who complete a desired action (like booking or purchasing) via the bot.\nWhy it matters: Shows the chatbot's value as a revenue-generating channel, not just a cost-center.\nBenchmark: 5-15%",
+    "Return Users": "What it is: The percentage of users who engage with the chatbot on multiple different occasions.\nWhy it matters: A high return rate proves the chatbot provides genuine utility and earns user trust.\nBenchmark: > 30%"
 }
 
 def metric_title_with_tooltip(title, icon):
     return html.Div([
         html.Span(f"{icon} {title}", className="metric-title", style={"marginBottom": "5px"}),
         html.I(className="bi bi-info-circle ms-2", id=f"tooltip-{title.replace(' ', '-')}", style={"color": "#8b949e", "cursor": "help"}),
-        dbc.Tooltip(metrics_info[title], target=f"tooltip-{title.replace(' ', '-')}", placement="top", style={"whiteSpace": "pre-line"})
+        dbc.Tooltip(metrics_info[title], target=f"tooltip-{title.replace(' ', '-')}", placement="top", style={"whiteSpace": "pre-line", "textAlign": "left"})
     ], style={"display": "flex", "justifyContent": "center", "alignItems": "center"})
 
 app.layout = html.Div([
@@ -84,19 +84,19 @@ app.layout = html.Div([
         # Top Row: Gauges
         dbc.Row([
             dbc.Col(html.Div([
-                metric_title_with_tooltip("Automation", "🤖"),
+                metric_title_with_tooltip("Automation Rate", "🤖"),
                 dcc.Graph(id='gauge-automation', config={'displayModeBar': False})
             ], className="glass-card"), width=3),
             dbc.Col(html.Div([
-                metric_title_with_tooltip("FCR", "✅"),
+                metric_title_with_tooltip("First Contact Resolution", "✅"),
                 dcc.Graph(id='gauge-fcr', config={'displayModeBar': False})
             ], className="glass-card"), width=3),
             dbc.Col(html.Div([
-                metric_title_with_tooltip("CSAT", "😊"),
+                metric_title_with_tooltip("Customer Satisfaction", "😊"),
                 dcc.Graph(id='gauge-csat', config={'displayModeBar': False})
             ], className="glass-card"), width=3),
             dbc.Col(html.Div([
-                metric_title_with_tooltip("Deflection", "🛡️"),
+                metric_title_with_tooltip("Ticket Deflection", "🛡️"),
                 dcc.Graph(id='gauge-deflection', config={'displayModeBar': False})
             ], className="glass-card"), width=3),
         ], style={"marginBottom": "1.5rem"}),
@@ -149,14 +149,14 @@ app.layout = html.Div([
                         id='custom-y', 
                         options=[
                             {'label': 'Automation Rate', 'value': 'Automation Rate'},
-                            {'label': 'FCR', 'value': 'FCR'},
-                            {'label': 'CSAT', 'value': 'CSAT'},
-                            {'label': 'Takeover Rate', 'value': 'Takeover Rate'},
+                            {'label': 'First Contact Resolution', 'value': 'First Contact Resolution'},
+                            {'label': 'Customer Satisfaction', 'value': 'Customer Satisfaction'},
+                            {'label': 'Human Takeover Rate', 'value': 'Human Takeover Rate'},
                             {'label': 'Fallback Rate', 'value': 'Fallback Rate'},
-                            {'label': 'AHT (Mins)', 'value': 'AHT (Mins)'},
+                            {'label': 'Average Handling Time', 'value': 'Average Handling Time'},
                             {'label': 'Volume', 'value': 'Volume'}
                         ], 
-                        value='AHT (Mins)', 
+                        value='Average Handling Time', 
                         className="custom-dropdown"
                     )
                 ], width=6)
@@ -245,10 +245,10 @@ def update_dashboard(start_date, end_date, selected_intents):
     
     mini_row = [
         mini_card("Volume", f"{total:,}", total, vol_max, FH_LIGHT, "📊"),
-        mini_card("Handling", f"{aht_mins:.1f}m", aht_mins, aht_max, FH_LIGHT, "⏱️"),
-        mini_card("Takeover", f"{takeover_rate:.1f}%", takeover_rate, 100, FH_RED, "🧑‍💻"),
-        mini_card("Fallback", f"{fallback_rate:.1f}%", fallback_rate, 100, FH_RED, "⚠️"),
-        mini_card("Conversion", f"{conv_rate:.1f}%", conv_rate, 100, FH_LIGHT, "🛒"),
+        mini_card("Average Handling Time", f"{aht_mins:.1f}m", aht_mins, aht_max, FH_LIGHT, "⏱️"),
+        mini_card("Human Takeover Rate", f"{takeover_rate:.1f}%", takeover_rate, 100, FH_RED, "🧑‍💻"),
+        mini_card("Fallback Rate", f"{fallback_rate:.1f}%", fallback_rate, 100, FH_RED, "⚠️"),
+        mini_card("Conversion Rate", f"{conv_rate:.1f}%", conv_rate, 100, FH_LIGHT, "🛒"),
         mini_card("Return Users", f"{ret_rate:.1f}%", ret_rate, 100, FH_GREEN, "🔄")
     ]
     
@@ -268,6 +268,7 @@ def update_dashboard(start_date, end_date, selected_intents):
     
     fig_aht = px.box(dff_aht, x='AHT_Mins', y='intent', color_discrete_sequence=[FH_LIGHT], points="outliers")
     fig_aht.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#8b949e", family="Inter"), xaxis=dict(gridcolor="rgba(255,255,255,0.05)", title="Handling Time (Mins)"), yaxis=dict(title=""), margin=dict(t=10, b=10, l=150, r=10), height=350)
+    fig_aht.update_traces(hovertemplate="%{x:.1f} Mins<extra></extra>")
     
     # Failure Hotspots
     fails = dff.groupby('intent').agg(
@@ -313,15 +314,15 @@ def update_custom(x_axis, y_axis, start_date, end_date, selected_intents):
     # Aggregate Metrics (Y)
     if y_axis == 'Automation Rate':
         agg_df = plot_df.groupby('Group').apply(lambda x: ((~x['human_takeover']).sum() / len(x)) * 100).reset_index(name='Val')
-    elif y_axis == 'FCR':
+    elif y_axis == 'First Contact Resolution':
         agg_df = plot_df.groupby('Group').apply(lambda x: (x['is_resolved'].sum() / len(x)) * 100).reset_index(name='Val')
-    elif y_axis == 'CSAT':
+    elif y_axis == 'Customer Satisfaction':
         agg_df = plot_df.groupby('Group').apply(lambda x: ((x['csat_score'] >= 4).sum() / len(x)) * 100).reset_index(name='Val')
-    elif y_axis == 'Takeover Rate':
+    elif y_axis == 'Human Takeover Rate':
         agg_df = plot_df.groupby('Group').apply(lambda x: (x['human_takeover'].sum() / len(x)) * 100).reset_index(name='Val')
     elif y_axis == 'Fallback Rate':
         agg_df = plot_df.groupby('Group').apply(lambda x: (x['is_fallback'].sum() / len(x)) * 100).reset_index(name='Val')
-    elif y_axis == 'AHT (Mins)':
+    elif y_axis == 'Average Handling Time':
         agg_df = plot_df.groupby('Group')['average_handling_time'].mean().reset_index(name='Val')
         agg_df['Val'] /= 60
     elif y_axis == 'Volume':
