@@ -241,9 +241,11 @@ def update_dashboard(start_date, end_date, selected_intents):
         
         return dbc.Col(html.Div([
             metric_title_with_tooltip(key),
-            html.Div(value_str, className="metric-value", style={"color": "white", "fontSize": "2rem"}),
-            dbc.Progress(value=prog_val, color=color, style={"height": "4px", "backgroundColor": "rgba(255,255,255,0.1)", "marginTop": "10px"})
-        ], className="glass-card", style={"padding": "1rem", "textAlign": "center"}), width=2)
+            html.Div([
+                html.Div(value_str, className="metric-value", style={"color": "white", "fontSize": "2rem"}),
+                dbc.Progress(value=prog_val, color=color, style={"height": "4px", "backgroundColor": "rgba(255,255,255,0.1)", "marginTop": "10px"})
+            ], style={"marginTop": "auto"})
+        ], className="glass-card", style={"padding": "1rem", "textAlign": "center", "display": "flex", "flexDirection": "column"}), width=2)
         
     # Assuming volume max is around max daily volume, but we'll cap it dynamically
     vol_max = total * 1.5 if total > 0 else 1
