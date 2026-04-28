@@ -29,6 +29,7 @@ graph TD
     
     E --> G[Production Docker Container]
     F --> G
+    G --> H((Render Free Cloud Hosting))
 ```
 
 ### Data Collection & Engineering
@@ -140,3 +141,9 @@ docker build -t ota-dashboard .
 docker run -p 8050:8050 ota-dashboard
 ```
 *Open `http://localhost:8050` in your browser.*
+
+### Option C: Free Cloud Hosting (Render.com)
+The project is configured for one-click continuous deployment to [Render](https://render.com). By connecting this GitHub repository to Render as a "Web Service", Render will automatically build the Docker container and deploy it to a public URL for anyone to access.
+
+> [!WARNING]
+> **Free Tier Sleep Behavior:** Render's free tier is fantastic, but it will put the server to "sleep" after 15 minutes of inactivity. **If you open the website and it hangs or shows an error, DO NOT PANIC!** Just hit refresh and wait 1 to 2 minutes. The server is simply waking up from sleep mode, and the dashboard will load perfectly once it finishes booting.
