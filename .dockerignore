@@ -1,0 +1,18 @@
+# Exclude the virtual environment
+.venv/
+env/
+venv/
+
+# Exclude cache and compiled Python files
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Exclude environment variables to protect sensitive data
+.env
+
+# Exclude Git files
+.git/
+
+# Exclude Streamlit local config
+.streamlit/

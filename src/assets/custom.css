@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top left, #0F2A55, #000000);
+    color: #e6edf3;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* Sidebar Toggle Transition */
+.sidebar {
+    background: rgba(15, 42, 85, 0.6); /* OTA Blue Zodiac */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(35, 173, 224, 0.2);
+    padding: 2rem;
+    height: 100vh;
+    position: fixed;
+    width: 300px;
+    top: 0;
+    left: 0;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 1000;
+}
+
+.sidebar-collapsed {
+    transform: translateX(-300px);
+}
+
+.content {
+    margin-left: 300px;
+    padding: 2.5rem;
+    transition: margin-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.content-expanded {
+    margin-left: 0;
+}
+
+/* Menu Toggle Button */
+.menu-toggle {
+    background: transparent;
+    border: 1px solid rgba(35, 173, 224, 0.5);
+    color: #23ADE0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Inter';
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+.menu-toggle:hover {
+    background: rgba(35, 173, 224, 0.2);
+}
+
+/* Glowing Title */
+.cyber-title {
+    background: linear-gradient(90deg, #23ADE0 0%, #CFF8AA 100%); /* Curious Blue to Pale Green */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Glass Cards */
+.glass-card {
+    background: rgba(15, 42, 85, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(35, 173, 224, 0.15); /* Curious Blue hint */
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(35, 173, 224, 0.6);
+    box-shadow: 0 8px 32px 0 rgba(35, 173, 224, 0.2);
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 10px 0;
+    line-height: 1.1;
+}
+
+.metric-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8b949e;
+    font-weight: 600;
+}
+
+/* Dash Core Components Fixes & Styling */
+.Select-control {
+    background-color: rgba(15, 42, 85, 0.8) !important;
+    border: 1px solid rgba(35, 173, 224, 0.5) !important;
+    color: white !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 10px rgba(35, 173, 224, 0.1) !important;
+}
+.Select-menu-outer {
+    background-color: #0F2A55 !important;
+    border: 1px solid #23ADE0 !important;
+    color: white !important;
+}
+.Select-value-label {
+    color: white !important;
+}
+.Select.has-value.Select--single > .Select-control .Select-value .Select-value-label, .Select.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+    color: white !important;
+}
+
+/* Datepicker Overlap Fix */
+.DateRangePicker {
+    display: block;
+    width: 100%;
+}
+.DateRangePickerInput {
+    background-color: rgba(15, 42, 85, 0.8) !important;
+    border: 1px solid rgba(35, 173, 224, 0.5) !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center;
+    width: 100%;
+    box-shadow: 0 0 10px rgba(35, 173, 224, 0.1) !important;
+}
+.DateInput {
+    width: 45% !important;
+    background: transparent !important;
+}
+.DateInput_input {
+    background-color: transparent !important;
+    color: white !important;
+    border: none !important;
+    text-align: center;
+    font-size: 14px !important;
+}
+.DateRangePickerInput_arrow_svg {
+    fill: #23ADE0 !important;
+}
+
+/* Tooltip Styling Override */
+.tooltip-inner {
+    background-color: #0F2A55 !important;
+    border: 1px solid #23ADE0 !important;
+    color: white !important;
+    font-family: 'Inter', sans-serif !important;
+    text-align: left !important;
+    max-width: 300px !important;
+    padding: 12px !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+}
+.tooltip-arrow::before {
+    border-top-color: #23ADE0 !important;
+    border-bottom-color: #23ADE0 !important;
+}

@@ -1,0 +1,13 @@
+[project]
+name = "chatbot-kpi-dashboard"
+version = "0.1.0"
+description = "End-to-end data pipeline and performance dashboard to track customer service chatbot KPIs"
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
