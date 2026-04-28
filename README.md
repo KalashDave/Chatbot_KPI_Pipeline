@@ -32,12 +32,21 @@ graph TD
 ```
 
 ### Data Collection & Engineering
-The dataset powering this dashboard relies on synthetic customer support interactions generated via Bitext. The data engineering process operates as follows:
-1. **Ingestion & Parsing (`src/ingest.py`)**: Raw chat logs are ingested, parsing crucial boolean markers such as `human_takeover`, `is_fallback`, and `is_resolved`.
+The primary dataset powering this dashboard relies on synthetic customer support interactions generated via [Bitext (Customer Support LLM Chatbot Training Dataset)](https://huggingface.co/datasets/bitext/Bitext-customer-support-llm-chatbot-training-dataset). 
+
+Because the original dataset only contained raw text and basic intents, we augmented it by engineering and populating dummy (synthetic) data into new columns—such as `human_takeover`, `is_fallback`, `csat_score`, and `average_handling_time`—which were necessary to calculate the advanced metrics below.
+
+> [!WARNING]
+> **Data Disclaimer:** Because the metrics are calculated using this heavily augmented dummy data, the resulting KPI values, trends, and charts shown in the dashboard are simulated and may be incorrect or unrealistic compared to real-world production environments. They serve purely as a demonstration of the dashboard's capabilities.
+
+The data engineering process operates as follows:
+1. **Ingestion & Parsing (`src/ingest.py`)**: Raw chat logs are ingested, generating the synthetic dummy markers and parsing crucial boolean columns such as `human_takeover`, `is_fallback`, and `is_resolved`.
 2. **Feature Engineering**: Handling durations are calculated into `average_handling_time` and cross-referenced with `intent` categorizations.
 3. **Persistence (`src/database.py`)**: The cleaned pandas DataFrame is injected into a lightweight `SQLite` database (`data/chatbot_metrics.sqlite`) for ultra-fast, local retrieval without the need for external cloud database connections.
 
 ## 📊 The 3 Categories of Chatbot Metrics
+*(Metric definitions and categories are heavily inspired by and credited to [omq.ai's Chatbot KPI Lexicon](https://omq.ai/lexicon/chatbot-kpi/)).*
+
 Before we dive into the individual KPIs tracked by this dashboard, it’s worth grouping them into three overarching categories:
 
 | Category | Metrics | Key question |
