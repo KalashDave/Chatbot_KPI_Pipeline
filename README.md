@@ -34,6 +34,13 @@ graph TD
     G --> H((Render Free Cloud Hosting))
 ```
 
+### 🛠️ The Tech Stack
+*   **Data Engineering:** `pandas` (for parsing, feature engineering, and KPI math operations).
+*   **Database:** `SQLite3` (lightweight, zero-config relational persistence).
+*   **Frontend A (Premium):** `dash`, `dash-bootstrap-components`, `plotly.express`, `plotly.graph_objects` (for the highly interactive, dynamic React-based dashboard).
+*   **Frontend B (Operational):** `streamlit` (for the rapid-prototyping, light-mode interface).
+*   **DevOps & Deployment:** `Docker` (containerization), `gunicorn` (production WSGI server), `uv` (ultra-fast Python package management).
+
 ### Data Collection & Engineering
 The primary dataset powering this dashboard relies on synthetic customer support interactions generated via [Bitext (Customer Support LLM Chatbot Training Dataset)](https://huggingface.co/datasets/bitext/Bitext-customer-support-llm-chatbot-training-dataset). 
 

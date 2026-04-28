@@ -9,53 +9,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Sidebar Toggle Transition */
-.sidebar {
-    background: rgba(15, 42, 85, 0.6); /* OTA Blue Zodiac */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(35, 173, 224, 0.2);
-    padding: 2rem;
-    height: 100vh;
-    position: fixed;
-    width: 300px;
-    top: 0;
-    left: 0;
-    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    z-index: 1000;
-}
 
-.sidebar-collapsed {
-    transform: translateX(-300px);
-}
-
-.content {
-    margin-left: 300px;
-    padding: 2.5rem;
-    transition: margin-left 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.content-expanded {
-    margin-left: 0;
-}
-
-/* Menu Toggle Button */
-.menu-toggle {
-    background: transparent;
-    border: 1px solid rgba(35, 173, 224, 0.5);
-    color: #23ADE0;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: 'Inter';
-    font-weight: 600;
-    transition: all 0.2s;
-    margin-bottom: 20px;
-    display: inline-block;
-}
-.menu-toggle:hover {
-    background: rgba(35, 173, 224, 0.2);
-}
 
 /* Glowing Title */
 .cyber-title {
@@ -105,22 +59,24 @@ body {
 
 /* Dash Core Components Fixes & Styling */
 .Select-control {
-    background-color: rgba(15, 42, 85, 0.8) !important;
+    background-color: white !important;
     border: 1px solid rgba(35, 173, 224, 0.5) !important;
-    color: white !important;
     border-radius: 8px !important;
     box-shadow: 0 0 10px rgba(35, 173, 224, 0.1) !important;
 }
 .Select-menu-outer {
-    background-color: #0F2A55 !important;
+    background-color: white !important;
     border: 1px solid #23ADE0 !important;
-    color: white !important;
+    color: black !important;
 }
 .Select-value-label {
-    color: white !important;
+    color: black !important;
+}
+.Select-placeholder {
+    color: #666 !important;
 }
 .Select.has-value.Select--single > .Select-control .Select-value .Select-value-label, .Select.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
-    color: white !important;
+    color: black !important;
 }
 
 /* Datepicker Overlap Fix */
