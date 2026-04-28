@@ -45,10 +45,10 @@ metrics_info = {
     "Return Users": "What it is: The percentage of users who engage with the chatbot on multiple different occasions.\nWhy it matters: A high return rate proves the chatbot provides genuine utility and earns user trust.\nBenchmark: > 30%"
 }
 
-def metric_title_with_tooltip(title, icon):
+def metric_title_with_tooltip(title):
     return html.Div([
         html.Div(style={"flex": "1"}), # Spacer left
-        html.Span(f"{icon} {title}", className="metric-title", style={"flex": "4", "textAlign": "center", "fontSize": "0.8rem", "lineHeight": "1.2"}),
+        html.Span(title, className="metric-title", style={"flex": "4", "textAlign": "center", "fontSize": "0.8rem", "lineHeight": "1.2"}),
         html.Div([
             html.I(className="bi bi-info-circle", id=f"tooltip-{title.replace(' ', '-')}", style={"color": "#8b949e", "cursor": "help", "fontSize": "1rem"}),
             dbc.Tooltip(metrics_info[title], target=f"tooltip-{title.replace(' ', '-')}", placement="top", style={"whiteSpace": "pre-line", "textAlign": "left"})
@@ -92,19 +92,19 @@ app.layout = html.Div([
         # Top Row: Gauges
         dbc.Row([
             dbc.Col(html.Div([
-                metric_title_with_tooltip("Automation Rate", "🤖"),
+                metric_title_with_tooltip("Automation Rate"),
                 dcc.Graph(id='gauge-automation', config={'displayModeBar': False})
             ], className="glass-card"), width=3),
             dbc.Col(html.Div([
-                metric_title_with_tooltip("First Contact Resolution", "✅"),
+                metric_title_with_tooltip("First Contact Resolution"),
                 dcc.Graph(id='gauge-fcr', config={'displayModeBar': False})
             ], className="glass-card"), width=3),
             dbc.Col(html.Div([
-                metric_title_with_tooltip("Customer Satisfaction", "😊"),
+                metric_title_with_tooltip("Customer Satisfaction"),
                 dcc.Graph(id='gauge-csat', config={'displayModeBar': False})
             ], className="glass-card"), width=3),
             dbc.Col(html.Div([
-                metric_title_with_tooltip("Ticket Deflection", "🛡️"),
+                metric_title_with_tooltip("Ticket Deflection"),
                 dcc.Graph(id='gauge-deflection', config={'displayModeBar': False})
             ], className="glass-card"), width=3),
         ], style={"marginBottom": "1.5rem"}),
@@ -234,13 +234,13 @@ def update_dashboard(start_date, end_date, selected_intents):
     g3 = create_gauge(csat, FH_GREEN)
     g4 = create_gauge(deflection_rate, FH_GREEN)
     
-    def mini_card(key, value_str, value_num, max_val, color, icon):
+    def mini_card(key, value_str, value_num, max_val, color):
         # Progress bar logic
         prog_val = (value_num / max_val * 100) if max_val > 0 else 0
         prog_val = min(max(prog_val, 0), 100) # clamp
         
         return dbc.Col(html.Div([
-            metric_title_with_tooltip(key, icon),
+            metric_title_with_tooltip(key),
             html.Div(value_str, className="metric-value", style={"color": "white", "fontSize": "2rem"}),
             dbc.Progress(value=prog_val, color=color, style={"height": "4px", "backgroundColor": "rgba(255,255,255,0.1)", "marginTop": "10px"})
         ], className="glass-card", style={"padding": "1rem", "textAlign": "center"}), width=2)
@@ -250,12 +250,12 @@ def update_dashboard(start_date, end_date, selected_intents):
     aht_max = 10 # 10 mins
     
     mini_row = [
-        mini_card("Volume", f"{total:,}", total, vol_max, FH_LIGHT, "📊"),
-        mini_card("Average Handling Time", f"{aht_mins:.1f}m", aht_mins, aht_max, FH_LIGHT, "⏱️"),
-        mini_card("Human Takeover Rate", f"{takeover_rate:.1f}%", takeover_rate, 100, FH_RED, "🧑‍💻"),
-        mini_card("Fallback Rate", f"{fallback_rate:.1f}%", fallback_rate, 100, FH_RED, "⚠️"),
-        mini_card("Conversion Rate", f"{conv_rate:.1f}%", conv_rate, 100, FH_LIGHT, "🛒"),
-        mini_card("Return Users", f"{ret_rate:.1f}%", ret_rate, 100, FH_GREEN, "🔄")
+        mini_card("Volume", f"{total:,}", total, vol_max, FH_LIGHT),
+        mini_card("Average Handling Time", f"{aht_mins:.1f}m", aht_mins, aht_max, FH_LIGHT),
+        mini_card("Human Takeover Rate", f"{takeover_rate:.1f}%", takeover_rate, 100, FH_RED),
+        mini_card("Fallback Rate", f"{fallback_rate:.1f}%", fallback_rate, 100, FH_RED),
+        mini_card("Conversion Rate", f"{conv_rate:.1f}%", conv_rate, 100, FH_LIGHT),
+        mini_card("Return Users", f"{ret_rate:.1f}%", ret_rate, 100, FH_GREEN)
     ]
     
     # Timeline
