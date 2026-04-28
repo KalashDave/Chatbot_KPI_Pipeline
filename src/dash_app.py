@@ -53,33 +53,6 @@ def metric_title_with_tooltip(title, icon):
     ], style={"display": "flex", "justifyContent": "center", "alignItems": "center"})
 
 app.layout = html.Div([
-    html.Style('''
-        .Select-control {
-            background-color: rgba(15, 42, 85, 0.9) !important;
-            border: 1px solid rgba(35, 173, 224, 0.5) !important;
-            border-radius: 8px !important;
-            color: white !important;
-            box-shadow: 0 0 10px rgba(35, 173, 224, 0.1) !important;
-        }
-        .Select-menu-outer {
-            background-color: #0F2A55 !important;
-            border: 1px solid #23ADE0 !important;
-            color: white !important;
-        }
-        .Select-value-label, .Select-value { color: white !important; }
-        .Select-placeholder { color: #8b949e !important; }
-        .Select.has-value.Select--single > .Select-control .Select-value .Select-value-label { color: white !important; }
-        .DateRangePickerInput {
-            background-color: rgba(15, 42, 85, 0.9) !important;
-            border: 1px solid rgba(35, 173, 224, 0.5) !important;
-            border-radius: 8px !important;
-            display: flex !important;
-            width: 100% !important;
-        }
-        .DateInput { width: 45% !important; background: transparent !important; }
-        .DateInput_input { background-color: transparent !important; color: white !important; border: none !important; font-size: 14px !important; text-align: center; }
-        .glass-card { position: relative; }
-    '''),
     html.Div([
         html.H1("INTELLIGENCE DASHBOARD", className="cyber-title", style={"textAlign": "center"}),
         html.P("Real-time telemetry and advanced KPI modeling.", style={"color": "#8b949e", "fontSize": "1.1rem", "marginBottom": "2rem", "textAlign": "center"}),
