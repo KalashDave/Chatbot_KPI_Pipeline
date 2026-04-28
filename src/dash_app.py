@@ -47,10 +47,13 @@ metrics_info = {
 
 def metric_title_with_tooltip(title, icon):
     return html.Div([
-        html.Span(f"{icon} {title}", className="metric-title", style={"marginBottom": "5px"}),
-        html.I(className="bi bi-info-circle", id=f"tooltip-{title.replace(' ', '-')}", style={"color": "#8b949e", "cursor": "help", "position": "absolute", "top": "15px", "right": "15px", "fontSize": "1.1rem"}),
-        dbc.Tooltip(metrics_info[title], target=f"tooltip-{title.replace(' ', '-')}", placement="top", style={"whiteSpace": "pre-line", "textAlign": "left"})
-    ], style={"display": "flex", "justifyContent": "center", "alignItems": "center"})
+        html.Div(style={"flex": "1"}), # Spacer left
+        html.Span(f"{icon} {title}", className="metric-title", style={"flex": "4", "textAlign": "center", "fontSize": "0.8rem", "lineHeight": "1.2"}),
+        html.Div([
+            html.I(className="bi bi-info-circle", id=f"tooltip-{title.replace(' ', '-')}", style={"color": "#8b949e", "cursor": "help", "fontSize": "1rem"}),
+            dbc.Tooltip(metrics_info[title], target=f"tooltip-{title.replace(' ', '-')}", placement="top", style={"whiteSpace": "pre-line", "textAlign": "left"})
+        ], style={"flex": "1", "textAlign": "right"})
+    ], style={"display": "flex", "justifyContent": "space-between", "alignItems": "flex-start", "marginBottom": "5px", "width": "100%"})
 
 app.layout = html.Div([
     html.Div([
@@ -61,22 +64,27 @@ app.layout = html.Div([
         dbc.Row([
             dbc.Col([
                 html.P("Date Range", className="metric-title"),
-                dcc.DatePickerRange(
-                    id='date-picker',
-                    min_date_allowed=df['timestamp'].min().date(),
-                    max_date_allowed=df['timestamp'].max().date(),
-                    start_date=df['timestamp'].min().date(),
-                    end_date=df['timestamp'].max().date(),
+                html.Div(
+                    dcc.DatePickerRange(
+                        id='date-picker',
+                        min_date_allowed=df['timestamp'].min().date(),
+                        max_date_allowed=df['timestamp'].max().date(),
+                        start_date=df['timestamp'].min().date(),
+                        end_date=df['timestamp'].max().date(),
+                    ),
+                    style={"color": "black"} # Force text black for standard white background
                 )
             ], width=4),
             dbc.Col([
                 html.P("Filter by Intent", className="metric-title"),
-                dcc.Dropdown(
-                    id='intent-dropdown',
-                    options=[{'label': i, 'value': i} for i in df['intent'].dropna().unique()],
-                    multi=True,
-                    placeholder="All Intents",
-                    className="custom-dropdown"
+                html.Div(
+                    dcc.Dropdown(
+                        id='intent-dropdown',
+                        options=[{'label': i, 'value': i} for i in df['intent'].dropna().unique()],
+                        multi=True,
+                        placeholder="All Intents"
+                    ),
+                    style={"color": "black"} # Force text black inside the react-select
                 )
             ], width=8)
         ], style={"marginBottom": "2rem"}),
@@ -131,7 +139,7 @@ app.layout = html.Div([
             dbc.Row([
                 dbc.Col([
                     html.P("Select X-Axis (Grouping)", className="metric-title", style={"color": "white"}),
-                    dcc.Dropdown(
+                    dbc.Select(
                         id='custom-x', 
                         options=[
                             {'label': 'Intent', 'value': 'Intent'},
@@ -139,13 +147,12 @@ app.layout = html.Div([
                             {'label': 'Day of Week', 'value': 'Day of Week'},
                             {'label': 'Hour of Day', 'value': 'Hour of Day'}
                         ], 
-                        value='Intent', 
-                        className="custom-dropdown"
+                        value='Intent'
                     )
                 ], width=6),
                 dbc.Col([
                     html.P("Select Y-Axis (Metric)", className="metric-title", style={"color": "white"}),
-                    dcc.Dropdown(
+                    dbc.Select(
                         id='custom-y', 
                         options=[
                             {'label': 'Automation Rate', 'value': 'Automation Rate'},
@@ -156,8 +163,7 @@ app.layout = html.Div([
                             {'label': 'Average Handling Time', 'value': 'Average Handling Time'},
                             {'label': 'Volume', 'value': 'Volume'}
                         ], 
-                        value='Average Handling Time', 
-                        className="custom-dropdown"
+                        value='Average Handling Time'
                     )
                 ], width=6)
             ]),
