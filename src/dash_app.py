@@ -48,11 +48,38 @@ metrics_info = {
 def metric_title_with_tooltip(title, icon):
     return html.Div([
         html.Span(f"{icon} {title}", className="metric-title", style={"marginBottom": "5px"}),
-        html.I(className="bi bi-info-circle ms-2", id=f"tooltip-{title.replace(' ', '-')}", style={"color": "#8b949e", "cursor": "help"}),
+        html.I(className="bi bi-info-circle", id=f"tooltip-{title.replace(' ', '-')}", style={"color": "#8b949e", "cursor": "help", "position": "absolute", "top": "15px", "right": "15px", "fontSize": "1.1rem"}),
         dbc.Tooltip(metrics_info[title], target=f"tooltip-{title.replace(' ', '-')}", placement="top", style={"whiteSpace": "pre-line", "textAlign": "left"})
     ], style={"display": "flex", "justifyContent": "center", "alignItems": "center"})
 
 app.layout = html.Div([
+    html.Style('''
+        .Select-control {
+            background-color: rgba(15, 42, 85, 0.9) !important;
+            border: 1px solid rgba(35, 173, 224, 0.5) !important;
+            border-radius: 8px !important;
+            color: white !important;
+            box-shadow: 0 0 10px rgba(35, 173, 224, 0.1) !important;
+        }
+        .Select-menu-outer {
+            background-color: #0F2A55 !important;
+            border: 1px solid #23ADE0 !important;
+            color: white !important;
+        }
+        .Select-value-label, .Select-value { color: white !important; }
+        .Select-placeholder { color: #8b949e !important; }
+        .Select.has-value.Select--single > .Select-control .Select-value .Select-value-label { color: white !important; }
+        .DateRangePickerInput {
+            background-color: rgba(15, 42, 85, 0.9) !important;
+            border: 1px solid rgba(35, 173, 224, 0.5) !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            width: 100% !important;
+        }
+        .DateInput { width: 45% !important; background: transparent !important; }
+        .DateInput_input { background-color: transparent !important; color: white !important; border: none !important; font-size: 14px !important; text-align: center; }
+        .glass-card { position: relative; }
+    '''),
     html.Div([
         html.H1("INTELLIGENCE DASHBOARD", className="cyber-title", style={"textAlign": "center"}),
         html.P("Real-time telemetry and advanced KPI modeling.", style={"color": "#8b949e", "fontSize": "1.1rem", "marginBottom": "2rem", "textAlign": "center"}),
@@ -268,7 +295,7 @@ def update_dashboard(start_date, end_date, selected_intents):
     
     fig_aht = px.box(dff_aht, x='AHT_Mins', y='intent', color_discrete_sequence=[FH_LIGHT], points="outliers")
     fig_aht.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#8b949e", family="Inter"), xaxis=dict(gridcolor="rgba(255,255,255,0.05)", title="Handling Time (Mins)"), yaxis=dict(title=""), margin=dict(t=10, b=10, l=150, r=10), height=350)
-    fig_aht.update_traces(hovertemplate="%{x:.1f} Mins<extra></extra>")
+    fig_aht.update_traces(hoverinfo='none', hovertemplate=None)
     
     # Failure Hotspots
     fails = dff.groupby('intent').agg(
