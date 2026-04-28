@@ -4,6 +4,8 @@
 
 A production-grade, dual-architecture telemetry dashboard designed to track, visualize, and analyze Customer Support Chatbot KPIs for Online Travel Agencies (OTAs).
 
+🚀 **Live Deployment:** [https://chatbot-kpi-pipeline.onrender.com/](https://chatbot-kpi-pipeline.onrender.com/) *(Note: Hosted on free tier. If the site hangs, please allow 1-2 minutes for the server to wake up.)*
+
 ---
 
 ## 🧐 What is this?
