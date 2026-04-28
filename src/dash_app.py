@@ -33,25 +33,31 @@ server = app.server
 
 # Metrics Metadata for Tooltips
 metrics_info = {
-    "Automation Rate": "What it is: The percentage of inquiries resolved entirely by the AI without human intervention.\nWhy it matters: High automation directly reduces support costs and scales operations.\nBenchmark: 70-85% for well-optimized systems.",
-    "First Contact Resolution": "What it is: Percentage of issues successfully resolved on the very first interaction.\nWhy it matters: A high FCR means the chatbot is actually helpful, rather than just deflecting customers who later return frustrated.\nBenchmark: > 65%",
-    "Customer Satisfaction": "What it is: The percentage of positive ratings (4 or 5 stars) given by users after a chat.\nWhy it matters: Efficiency metrics (like Automation) mean nothing if the customer experience is poor.\nBenchmark: > 80%",
-    "Ticket Deflection": "What it is: The percentage of conversations that would have become support tickets but were resolved by the AI.\nWhy it matters: This is the strongest indicator of direct ROI and cost savings.\nBenchmark: > 50%",
-    "Volume": "What it is: The total number of chatbot interactions over the selected period.\nWhy it matters: Indicates user adoption. A growing trend means customers trust the widget.\nBenchmark: Steadily growing.",
-    "Average Handling Time": "What it is: The average duration of a chat from start to finish.\nWhy it matters: Too short may indicate frustration/drop-offs; too long indicates a confusing conversation loop.\nBenchmark: 2-5 minutes.",
-    "Human Takeover Rate": "What it is: How often a conversation is escalated to a live human agent.\nWhy it matters: Identifies the limitations of the AI's current knowledge base.\nBenchmark: < 25%",
-    "Fallback Rate": "What it is: How often the AI fails to understand the user's intent entirely.\nWhy it matters: A high fallback rate indicates a poorly trained NLP model or confusing user queries.\nBenchmark: < 10%",
-    "Conversion Rate": "What it is: The percentage of users who complete a desired action (like booking or purchasing) via the bot.\nWhy it matters: Shows the chatbot's value as a revenue-generating channel, not just a cost-center.\nBenchmark: 5-15%",
-    "Return Users": "What it is: The percentage of users who engage with the chatbot on multiple different occasions.\nWhy it matters: A high return rate proves the chatbot provides genuine utility and earns user trust.\nBenchmark: > 30%"
+    "Automation Rate": {"What it is": "The percentage of inquiries resolved entirely by the AI without human intervention.", "Why it matters": "High automation directly reduces support costs and scales operations.", "Benchmark": "70-85% for well-optimized systems."},
+    "First Contact Resolution": {"What it is": "Percentage of issues successfully resolved on the very first interaction.", "Why it matters": "A high FCR means the chatbot is actually helpful, rather than just deflecting customers who later return frustrated.", "Benchmark": "> 65%"},
+    "Customer Satisfaction": {"What it is": "The percentage of positive ratings (4 or 5 stars) given by users after a chat.", "Why it matters": "Efficiency metrics (like Automation) mean nothing if the customer experience is poor.", "Benchmark": "> 80%"},
+    "Ticket Deflection": {"What it is": "The percentage of conversations that would have become support tickets but were resolved by the AI.", "Why it matters": "This is the strongest indicator of direct ROI and cost savings.", "Benchmark": "> 50%"},
+    "Volume": {"What it is": "The total number of chatbot interactions over the selected period.", "Why it matters": "Indicates user adoption. A growing trend means customers trust the widget.", "Benchmark": "Steadily growing."},
+    "Average Handling Time": {"What it is": "The average duration of a chat from start to finish.", "Why it matters": "Too short may indicate frustration/drop-offs; too long indicates a confusing conversation loop.", "Benchmark": "2-5 minutes."},
+    "Human Takeover Rate": {"What it is": "How often a conversation is escalated to a live human agent.", "Why it matters": "Identifies the limitations of the AI's current knowledge base.", "Benchmark": "< 25%"},
+    "Fallback Rate": {"What it is": "How often the AI fails to understand the user's intent entirely.", "Why it matters": "A high fallback rate indicates a poorly trained NLP model or confusing user queries.", "Benchmark": "< 10%"},
+    "Conversion Rate": {"What it is": "The percentage of users who complete a desired action (like booking or purchasing) via the bot.", "Why it matters": "Shows the chatbot's value as a revenue-generating channel, not just a cost-center.", "Benchmark": "5-15%"},
+    "Return Users": {"What it is": "The percentage of users who engage with the chatbot on multiple different occasions.", "Why it matters": "A high return rate proves the chatbot provides genuine utility and earns user trust.", "Benchmark": "> 30%"}
 }
 
 def metric_title_with_tooltip(title):
+    info = metrics_info[title]
+    tooltip_content = [
+        html.Div([html.Strong("What it is: ", style={"color": "#23ADE0"}), html.Span(info["What it is"])]),
+        html.Div([html.Strong("Why it matters: ", style={"color": "#2ECC71"}), html.Span(info["Why it matters"])], style={"marginTop": "8px"}),
+        html.Div([html.Strong("Benchmark: ", style={"color": "#f59e0b"}), html.Span(info["Benchmark"])], style={"marginTop": "8px"})
+    ]
     return html.Div([
         html.Div(style={"flex": "1"}), # Spacer left
         html.Span(title, className="metric-title", style={"flex": "4", "textAlign": "center", "fontSize": "0.8rem", "lineHeight": "1.2"}),
         html.Div([
             html.I(className="bi bi-info-circle", id=f"tooltip-{title.replace(' ', '-')}", style={"color": "#8b949e", "cursor": "help", "fontSize": "1rem"}),
-            dbc.Tooltip(metrics_info[title], target=f"tooltip-{title.replace(' ', '-')}", placement="top", style={"whiteSpace": "pre-line", "textAlign": "left"})
+            dbc.Tooltip(tooltip_content, target=f"tooltip-{title.replace(' ', '-')}", placement="top", style={"textAlign": "left", "maxWidth": "350px", "fontSize": "0.85rem"})
         ], style={"flex": "1", "textAlign": "right"})
     ], style={"display": "flex", "justifyContent": "space-between", "alignItems": "flex-start", "marginBottom": "5px", "width": "100%"})
 
