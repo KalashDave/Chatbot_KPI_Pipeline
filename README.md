@@ -1,8 +1,8 @@
 # ✈️ Online Travel Agency (OTA): Intelligence Dashboard
 
-![OTA Dashboard](https://img.shields.io/badge/Status-Production_Ready-success) ![Python](https://img.shields.io/badge/Python-3.12-blue) ![Docker](https://img.shields.io/badge/Docker-Supported-2496ED) ![Dash](https://img.shields.io/badge/Plotly-Dash-0F2A55) ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B)
+![OTA Dashboard](https://img.shields.io/badge/Status-Production_Ready-success) ![Python](https://img.shields.io/badge/Python-3.12-blue) ![Docker](https://img.shields.io/badge/Docker-Supported-2496ED) ![Dash](https://img.shields.io/badge/Plotly-Dash-0F2A55)
 
-A production-grade, dual-architecture telemetry dashboard designed to track, visualize, and analyze Customer Support Chatbot KPIs for Online Travel Agencies (OTAs).
+A production-grade telemetry dashboard designed to track, visualize, and analyze Customer Support Chatbot KPIs for Online Travel Agencies (OTAs).
 
 🚀 **Live Deployment:** [https://chatbot-kpi-pipeline.onrender.com/](https://chatbot-kpi-pipeline.onrender.com/) *(Note: Hosted on free tier. If the site hangs, please allow 1-2 minutes for the server to wake up.)*
 
@@ -11,9 +11,7 @@ A production-grade, dual-architecture telemetry dashboard designed to track, vis
 ## 🧐 What is this?
 The **OTA Intelligence Dashboard** is a full-stack data visualization project. It takes raw, unstructured customer service chat logs (intents, fallback rates, takeover requests, handling times) and transforms them into an interactive, real-time command center. 
 
-Uniquely, this project features a **Dual-Architecture design**, meaning the same underlying data pipeline powers two completely different frontend experiences:
-1. **The Dash App (`src/dash_app.py`)**: A premium, highly interactive, cyberpunk-themed interface built with Plotly Dash, featuring a collapsible sidebar, hover tooltips, and dynamic visualizers.
-2. **The Streamlit App (`src/streamlit_app.py`)**: A clean, light-mode, rapid-prototyping interface designed for quick operational glances.
+The dashboard features a highly interactive, premium, cyberpunk-themed interface built with Plotly Dash. It includes real-time KPI gauges, dynamic custom visualizations, and interactive tooltips to give Product Managers a rapid overview of the chatbot's performance.
 
 ## 🎯 Why was it built?
 Chatbots are only as good as the data they generate. Product Managers and Support Leads need to know *exactly* when and why a chatbot fails. This dashboard was built to solve the **"Black Box Chatbot" problem** by surfacing core KPIs and tracking the exact interactions that trigger "Human Takeovers" or "Fallbacks".
@@ -24,21 +22,15 @@ Chatbots are only as good as the data they generate. Product Managers and Suppor
 graph TD
     A[Synthetic Customer Support Data] -->|Raw Interactions| B[Data Ingestion Script]
     B -->|Pandas Transformation| C[(SQLite Database)]
-    C -->|SQL Queries| D{Dual Architecture Backends}
-    
-    D -->|Plotly/Dash| E[Interactive Cyberpunk Dashboard]
-    D -->|Streamlit| F[Light-Mode Operational Dashboard]
-    
-    E --> G[Production Docker Container]
-    F --> G
-    G --> H((Render Free Cloud Hosting))
+    C -->|SQL Queries| D[Interactive Cyberpunk Dashboard]
+    D --> E[Production Docker Container]
+    E --> F((Render Free Cloud Hosting))
 ```
 
 ### 🛠️ The Tech Stack
 *   **Data Engineering:** `pandas` (for parsing, feature engineering, and KPI math operations).
 *   **Database:** `SQLite3` (lightweight, zero-config relational persistence).
-*   **Frontend A (Premium):** `dash`, `dash-bootstrap-components`, `plotly.express`, `plotly.graph_objects` (for the highly interactive, dynamic React-based dashboard).
-*   **Frontend B (Operational):** `streamlit` (for the rapid-prototyping, light-mode interface).
+*   **Frontend:** `dash`, `dash-bootstrap-components`, `plotly.express`, `plotly.graph_objects` (for the highly interactive, dynamic React-based dashboard).
 *   **DevOps & Deployment:** `Docker` (containerization), `gunicorn` (production WSGI server), `uv` (ultra-fast Python package management).
 
 ### Data Collection & Engineering
@@ -147,16 +139,13 @@ The return visitor rate shows how many users voluntarily use the chatbot a secon
 ## 🚀 How to Run It
 
 ### Option A: Run Locally (Development)
-You can run either dashboard directly on your machine using `uv` or `pip`:
+You can run the dashboard directly on your machine using `uv` or `pip`:
 ```bash
 # 1. Install dependencies
 uv pip install -r requirements.txt
 
-# 2. Run the Premium Dash Application (Port 8050)
+# 2. Run the Dash Application (Port 8050)
 uv run python src/dash_app.py
-
-# 3. OR Run the Streamlit Application (Port 8501)
-streamlit run src/streamlit_app.py
 ```
 
 ### Option B: Run via Docker (Production)
