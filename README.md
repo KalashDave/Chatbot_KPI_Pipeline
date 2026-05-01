@@ -44,15 +44,34 @@ graph TD
 ### Data Collection & Engineering
 The primary dataset powering this dashboard relies on synthetic customer support interactions generated via [Bitext (Customer Support LLM Chatbot Training Dataset)](https://huggingface.co/datasets/bitext/Bitext-customer-support-llm-chatbot-training-dataset). 
 
-Because the original dataset only contained raw text and basic intents, we augmented it by engineering and populating dummy (synthetic) data into new columns—such as `human_takeover`, `is_fallback`, `csat_score`, and `average_handling_time`—which were necessary to calculate the advanced metrics below.
+**1. Original Data (From Hugging Face)**
+The original Bitext dataset provides the foundation of realistic chat logs. It contains the following core columns:
+*   `instruction`: The raw message or question asked by the customer.
+*   `intent`: The classified intent of the message (e.g., "cancel_order", "track_refund").
+*   `category`: The broader category the intent belongs to.
+*   `response`: The AI's ideal response to the instruction.
+*   `flags`: Additional metadata flags.
+
+**2. Synthetic Data Generation**
+Because the original dataset only contained raw text and basic intents, we augmented it by engineering and populating dummy (synthetic) data into new columns. These columns were strictly necessary to calculate the advanced metrics shown on the dashboard:
+
+*   `timestamp`: Randomly generated dates over a 30-day period. (Used for all **Temporal Visualizations** and Time Filters).
+*   `average_handling_time`: Simulated conversation duration in seconds. (Used for the **Average Handling Time** metric).
+*   `user_id`: Synthetic user identifiers with a weighted probability for recurring visits. (Used for the **Return Users** metric).
+*   `is_fallback`: Boolean indicating if the AI failed to understand the intent. (Used for the **Fallback Rate** metric).
+*   `human_takeover`: Boolean indicating if the chat was escalated to a human agent. (Used for the **Human Takeover Rate** metric).
+*   `is_resolved`: Boolean indicating if the issue was fully resolved. (Used for the **First Contact Resolution** metric).
+*   `csat_score`: An integer (1-5) rating weighted against whether the chat was resolved or handed over. (Used for the **Customer Satisfaction** metric).
+*   `converted`: Boolean indicating if the user completed a desired action. (Used for the **Conversion Rate** metric).
+*   `would_be_ticket`: Boolean indicating if the query was complex enough to have otherwise become a support ticket. (Used for the **Ticket Deflection** metric).
 
 > [!WARNING]
 > **Data Disclaimer:** Because the metrics are calculated using this heavily augmented dummy data, the resulting KPI values, trends, and charts shown in the dashboard are simulated and may be incorrect or unrealistic compared to real-world production environments. They serve purely as a demonstration of the dashboard's capabilities.
 
 The data engineering process operates as follows:
-1. **Ingestion & Parsing (`src/ingest.py`)**: Raw chat logs are ingested, generating the synthetic dummy markers and parsing crucial boolean columns such as `human_takeover`, `is_fallback`, and `is_resolved`.
-2. **Feature Engineering**: Handling durations are calculated into `average_handling_time` and cross-referenced with `intent` categorizations.
-3. **Persistence (`src/database.py`)**: The cleaned pandas DataFrame is injected into a lightweight `SQLite` database (`data/chatbot_metrics.sqlite`) for ultra-fast, local retrieval without the need for external cloud database connections.
+1. **Ingestion & Parsing (`src/ingest.py`)**: Raw chat logs are ingested from Hugging Face.
+2. **Feature Engineering (`src/process.py`)**: The pipeline loops through the original logs and systematically generates the synthetic KPI markers mentioned above using statistical probabilities.
+3. **Persistence (`src/database.py`)**: The fully augmented pandas DataFrame is injected into a lightweight `SQLite` database (`data/chatbot_metrics.sqlite`) for ultra-fast, local retrieval without the need for external cloud database connections.
 
 ## 📊 The 3 Categories of Chatbot Metrics
 *(Metric definitions and categories are heavily inspired by and credited to [omq.ai's Chatbot KPI Lexicon](https://omq.ai/lexicon/chatbot-kpi/)).*
