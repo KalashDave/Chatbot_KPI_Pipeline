@@ -1,3 +1,9 @@
+"""
+Dash application for the primary interactive dashboard.
+This file contains the layout, UI components, and all reactive callbacks
+necessary to render the cyberpunk-themed analytics interface.
+"""
+
 import dash
 from dash import dcc, html, Input, Output, State, dash_table
 import dash_bootstrap_components as dbc
@@ -7,28 +13,43 @@ import pandas as pd
 import sqlite3
 from pathlib import Path
 
-# Load Data
+# --- Data Loading ---
+# Resolve the path to the local SQLite database containing our engineered metrics
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "chatbot_metrics.sqlite"
+
 def load_data():
+    """
+    Connects to SQLite, reads the metrics table into a pandas DataFrame, 
+    and handles data type conversions (datetimes and booleans).
+    """
     with sqlite3.connect(DB_PATH) as conn:
         df = pd.read_sql("SELECT * FROM metrics", conn)
+        
+        # Convert timestamp strings back to datetime objects for filtering
         df['timestamp'] = pd.to_datetime(df['timestamp'])
+        
+        # SQLite stores booleans as integers (0/1). Cast them back to bool.
         bool_cols = ['human_takeover', 'is_fallback', 'is_resolved', 'would_be_ticket', 'converted']
         for col in bool_cols:
             if col in df.columns:
                 df[col] = df[col].astype(bool)
         return df
 
+# Execute the data load once when the app boots up
 df = load_data()
 
-# OTA Colors
-FH_DARK = "#0F2A55"
-FH_LIGHT = "#23ADE0"
-FH_GREEN = "#2ECC71"
-FH_RED = "#E74C3C"
+# --- Global Design Tokens ---
+# These hex codes represent the OTA (Online Travel Agency) cyberpunk brand guidelines
+FH_DARK = "#0F2A55"     # Dark background color
+FH_LIGHT = "#23ADE0"    # Primary neon blue for charts and accents
+FH_GREEN = "#2ECC71"    # Success green for positive metrics
+FH_RED = "#E74C3C"      # Danger red for failure metrics
 
+# --- Application Initialization ---
+# Initialize the Dash app with the Bootstrap CYBORG theme for the dark-mode aesthetic
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG, dbc.icons.BOOTSTRAP], suppress_callback_exceptions=True)
 app.title = "OTA Intelligence Dashboard"
+# Expose the underlying Flask server for Gunicorn deployment (e.g. on Render)
 server = app.server
 
 # Metrics Metadata for Tooltips
@@ -46,17 +67,28 @@ metrics_info = {
 }
 
 def metric_title_with_tooltip(title):
+    """
+    Generates a standardized HTML header for the mini-metric cards.
+    It takes the raw title, looks up its corresponding definition and benchmarks
+    from the metrics_info dictionary, and attaches an interactive info tooltip.
+    """
     info = metrics_info[title]
+    
+    # Construct the rich HTML content for the tooltip pop-over
     tooltip_content = [
         html.Div([html.Strong("What it is: ", style={"color": "#23ADE0"}), html.Span(info["What it is"])]),
         html.Div([html.Strong("Why it matters: ", style={"color": "#2ECC71"}), html.Span(info["Why it matters"])], style={"marginTop": "8px"}),
         html.Div([html.Strong("Benchmark: ", style={"color": "#f59e0b"}), html.Span(info["Benchmark"])], style={"marginTop": "8px"})
     ]
+    
+    # Return a Flexbox container that centers the title but anchors the 'i' icon to the far right
     return html.Div([
-        html.Div(style={"flex": "1"}), # Spacer left
+        html.Div(style={"flex": "1"}), # Empty spacer to balance the left side
         html.Span(title, className="metric-title", style={"flex": "4", "textAlign": "center", "fontSize": "0.8rem", "lineHeight": "1.2"}),
         html.Div([
+            # The 'i' icon that users hover over
             html.I(className="bi bi-info-circle", id=f"tooltip-{title.replace(' ', '-')}", style={"color": "#8b949e", "cursor": "help", "fontSize": "1rem"}),
+            # The actual Tooltip component bound to the icon's ID
             dbc.Tooltip(tooltip_content, target=f"tooltip-{title.replace(' ', '-')}", placement="top", style={"textAlign": "left", "maxWidth": "350px", "fontSize": "0.85rem"})
         ], style={"flex": "1", "textAlign": "right"})
     ], style={"display": "flex", "justifyContent": "space-between", "alignItems": "flex-start", "marginBottom": "5px", "width": "100%"})
@@ -179,6 +211,9 @@ app.layout = html.Div([
     ], style={"padding": "2.5rem", "maxWidth": "1400px", "margin": "0 auto"})
 ])
 
+# --- Application Callback ---
+# This single, monolithic callback listens to any changes in the Top Filters
+# (Date Range or Intents) and automatically recalculates ALL metrics and charts.
 @app.callback(
     [Output('gauge-automation', 'figure'),
      Output('gauge-fcr', 'figure'),
@@ -193,33 +228,57 @@ app.layout = html.Div([
      Input('intent-dropdown', 'value')]
 )
 def update_dashboard(start_date, end_date, selected_intents):
+    """
+    Triggered whenever a user changes a filter. 
+    It slices the global dataframe down to match the user's selection, 
+    re-runs the math, and returns the updated Plotly figures.
+    """
+    
+    # --- Step 1: Apply Global Filters ---
+    # Filter by Date Range
     mask = (df['timestamp'].dt.date >= pd.to_datetime(start_date).date()) & \
            (df['timestamp'].dt.date <= pd.to_datetime(end_date).date())
+           
+    # Filter by Intent (if any specific intents were selected)
     if selected_intents:
         mask = mask & (df['intent'].isin(selected_intents))
+        
+    # Create the final filtered working dataframe
     dff = df[mask]
     
+    # --- Step 2: Recalculate KPIs ---
+    # Return empty figures if the user's filters eliminated all data
     if dff.empty:
         return [go.Figure()] * 4 + [[]] + [go.Figure()] * 3
         
+    # Core Volume
     total = len(dff)
+    
+    # Efficiency & Quality Calculations (Percentages)
     automation_rate = ((~dff['human_takeover']).sum() / total) * 100
     fcr = (dff['is_resolved'].sum() / total) * 100
     csat = ((dff['csat_score'] >= 4).sum() / total) * 100
     
+    # Deflection Rate requires comparing tickets prevented vs tickets possible
     tickets_prevented = (dff['would_be_ticket'] & dff['is_resolved'] & ~dff['human_takeover']).sum()
     total_potential = dff['would_be_ticket'].sum()
     deflection_rate = (tickets_prevented / total_potential) * 100 if total_potential > 0 else 0
     
+    # Operational metrics
     takeover_rate = (dff['human_takeover'].sum() / total) * 100
     fallback_rate = (dff['is_fallback'].sum() / total) * 100
     aht_mins = dff['average_handling_time'].mean() / 60
     conv_rate = (dff['converted'].sum() / total) * 100
     
+    # User metrics
     user_counts = dff['user_id'].value_counts()
     ret_rate = ((user_counts > 1).sum() / len(user_counts)) * 100 if len(user_counts) > 0 else 0
     
+    # --- Step 3: Build the UI Components ---
     def create_gauge(value, color):
+        """
+        Helper to construct a Plotly Gauge chart for the top row.
+        """
         fig = go.Figure(go.Indicator(
             mode = "gauge+number",
             value = value,
@@ -266,44 +325,67 @@ def update_dashboard(start_date, end_date, selected_intents):
         mini_card("Return Users", f"{ret_rate:.1f}%", ret_rate, 100, FH_GREEN)
     ]
     
-    # Timeline
+    # Timeline Visualizer
+    # Group the chats by day and count volume, and sum the takeovers
     daily = dff.groupby(dff['timestamp'].dt.date).agg(Vol=('timestamp', 'count'), Takeovers=('human_takeover', 'sum')).reset_index()
     fig_time = go.Figure()
+    
+    # Add Area line for Total Volume
     fig_time.add_trace(go.Scatter(x=daily['timestamp'], y=daily['Vol'], mode='lines', name='Volume', line=dict(color=FH_LIGHT, width=3), fill='tozeroy', fillcolor=f'rgba(35, 173, 224, 0.1)'))
+    
+    # Add overlay line for Human Takeovers
     fig_time.add_trace(go.Scatter(x=daily['timestamp'], y=daily['Takeovers'], mode='lines', name='Takeovers', line=dict(color=FH_RED, width=3)))
+    
+    # Apply standard theme configurations
     fig_time.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#8b949e", family="Inter"), xaxis=dict(gridcolor="rgba(255,255,255,0.05)", showline=False, title=""), yaxis=dict(gridcolor="rgba(255,255,255,0.05)", showline=False, title=""), margin=dict(t=20, b=20, l=0, r=0), legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), height=350)
     
-    # Box plot for AHT by Intent
+    # --- Step 4: Build Handling Latency Box Plot ---
+    # Box plot representing the statistical distribution of handling times.
+    # Because there could be 100+ intents, we limit this chart to the Top 10 by volume to avoid clutter.
     dff_aht = dff.copy()
     dff_aht['AHT_Mins'] = dff_aht['average_handling_time'] / 60
-    # Top 10 intents by volume to avoid clutter
+    
     top_intents = dff_aht['intent'].value_counts().nlargest(10).index
     dff_aht = dff_aht[dff_aht['intent'].isin(top_intents)]
     
     fig_aht = px.box(dff_aht, x='AHT_Mins', y='intent', color_discrete_sequence=[FH_LIGHT], points="outliers")
     fig_aht.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#8b949e", family="Inter"), xaxis=dict(gridcolor="rgba(255,255,255,0.05)", title="Handling Time (Mins)"), yaxis=dict(title=""), margin=dict(t=10, b=10, l=150, r=10), height=350)
+    
+    # Disable hover data on this specific chart to keep it clean
     fig_aht.update_traces(hoverinfo='none', hovertemplate=None)
     
-    # Failure Hotspots
+    # --- Step 5: Build Failure Hotspots Stacked Bar ---
+    # Groups intents by the sum of fallbacks and takeovers, stacking them to show total failures.
     fails = dff.groupby('intent').agg(
         Fallbacks=('is_fallback', 'sum'),
         Takeovers=('human_takeover', 'sum')
     ).reset_index()
+    
+    # Sum them to sort and find the absolute worst performing intents
     fails['Total Failures'] = fails['Fallbacks'] + fails['Takeovers']
     fails = fails.sort_values(by='Total Failures', ascending=True).tail(10)
     
     fig_hotspots = go.Figure()
     fig_hotspots.add_trace(go.Bar(y=fails['intent'], x=fails['Fallbacks'], name='Fallbacks', orientation='h', marker_color='#f59e0b'))
     fig_hotspots.add_trace(go.Bar(y=fails['intent'], x=fails['Takeovers'], name='Takeovers', orientation='h', marker_color=FH_RED))
+    
+    # 'barmode=stack' stacks the orange and red bars on top of each other
     fig_hotspots.update_layout(barmode='stack', paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#8b949e", family="Inter"), xaxis=dict(gridcolor="rgba(255,255,255,0.05)", title="Failure Count"), yaxis=dict(title=""), margin=dict(t=10, b=10, l=150, r=10), height=350, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
 
+    # Return everything back to the Dash UI in the exact order requested by the Outputs
     return g1, g2, g3, g4, mini_row, fig_time, fig_aht, fig_hotspots
 
+# --- Secondary Callback: Custom Viz Engine ---
+# This callback powers the dynamic dropdowns at the bottom of the dashboard.
 @app.callback(
     Output('custom-chart', 'figure'),
     [Input('custom-x', 'value'), Input('custom-y', 'value'), Input('date-picker', 'start_date'), Input('date-picker', 'end_date'), Input('intent-dropdown', 'value')]
 )
 def update_custom(x_axis, y_axis, start_date, end_date, selected_intents):
+    """
+    Takes the user's custom X and Y axis selections, infers the data types,
+    and dynamically groups/aggregates the dataset to generate a custom chart.
+    """
     if not x_axis or not y_axis:
         return go.Figure().update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
         
@@ -315,7 +397,8 @@ def update_custom(x_axis, y_axis, start_date, end_date, selected_intents):
     if plot_df.empty:
         return go.Figure()
 
-    # Determine Grouping Variable (X)
+    # --- Step 1: Determine Grouping Variable (X) ---
+    # We map the user's plain-text dropdown selection to the actual dataframe column/datetime extraction
     if x_axis == 'Intent':
         plot_df['Group'] = plot_df['intent']
     elif x_axis == 'Date':
@@ -325,7 +408,8 @@ def update_custom(x_axis, y_axis, start_date, end_date, selected_intents):
     elif x_axis == 'Hour of Day':
         plot_df['Group'] = plot_df['timestamp'].dt.hour
         
-    # Aggregate Metrics (Y)
+    # --- Step 2: Aggregate Metrics (Y) ---
+    # Based on the selected KPI, we group by the newly created 'Group' column and run the specific math.
     if y_axis == 'Automation Rate':
         agg_df = plot_df.groupby('Group').apply(lambda x: ((~x['human_takeover']).sum() / len(x)) * 100).reset_index(name='Val')
     elif y_axis == 'First Contact Resolution':
@@ -338,29 +422,35 @@ def update_custom(x_axis, y_axis, start_date, end_date, selected_intents):
         agg_df = plot_df.groupby('Group').apply(lambda x: (x['is_fallback'].sum() / len(x)) * 100).reset_index(name='Val')
     elif y_axis == 'Average Handling Time':
         agg_df = plot_df.groupby('Group')['average_handling_time'].mean().reset_index(name='Val')
+        # Convert seconds to minutes for readability
         agg_df['Val'] /= 60
     elif y_axis == 'Volume':
+        # Volume is just a simple count of rows per group
         agg_df = plot_df.groupby('Group').size().reset_index(name='Val')
         
+    # --- Step 3: Select Chart Type ---
+    # If the X-Axis is time-based, we render a Line Chart. If categorical, a Bar Chart.
     if x_axis == 'Date':
-        # Sort by date
         agg_df = agg_df.sort_values('Group')
         fig = px.line(agg_df, x='Group', y='Val', title=f"{y_axis} over {x_axis}", color_discrete_sequence=[FH_LIGHT])
     elif x_axis == 'Hour of Day':
         agg_df = agg_df.sort_values('Group')
         fig = px.line(agg_df, x='Group', y='Val', title=f"{y_axis} by {x_axis}", color_discrete_sequence=[FH_LIGHT], markers=True)
     elif x_axis == 'Day of Week':
+        # Force the days to sort chronologically rather than alphabetically
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         agg_df['Group'] = pd.Categorical(agg_df['Group'], categories=days, ordered=True)
         agg_df = agg_df.sort_values('Group')
         fig = px.bar(agg_df, x='Group', y='Val', title=f"{y_axis} by {x_axis}", color_discrete_sequence=[FH_LIGHT])
     else:
-        # Intent
+        # Fallback for 'Intent' or other categoricals. Sort by highest value and limit to top 15.
         agg_df = agg_df.sort_values(by='Val', ascending=False).head(15)
         fig = px.bar(agg_df, x='Group', y='Val', title=f"{y_axis} by {x_axis}", color_discrete_sequence=[FH_LIGHT])
         fig.update_layout(xaxis={'categoryorder':'total descending'})
 
+    # Apply global chart styling to match the dark cyberpunk theme
     fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color="white", family="Inter"), xaxis=dict(gridcolor="rgba(255,255,255,0.05)", title=x_axis), yaxis=dict(gridcolor="rgba(255,255,255,0.05)", title=y_axis))
+    
     return fig
 
 if __name__ == '__main__':
