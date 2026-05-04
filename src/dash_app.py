@@ -385,7 +385,7 @@ def update_dashboard(start_date, end_date, selected_intents):
         barmode='stack', paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
         font=dict(color="#8b949e", family="Inter"), 
         xaxis=dict(gridcolor="rgba(255,255,255,0.05)", title="Failure Count"), 
-        yaxis=dict(title="", tickpad=15), 
+        yaxis=dict(title="", ticklabelstandoff=15), 
         margin=dict(t=10, b=10, l=150, r=10), height=350, 
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
