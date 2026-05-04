@@ -365,12 +365,30 @@ def update_dashboard(start_date, end_date, selected_intents):
     fails['Total Failures'] = fails['Fallbacks'] + fails['Takeovers']
     fails = fails.sort_values(by='Total Failures', ascending=True).tail(10)
     
+    # Calculate percentages for the stacked bars
+    fails['Fallback_Pct'] = fails.apply(lambda row: f"{(row['Fallbacks'] / row['Total Failures'] * 100):.1f}%" if row['Total Failures'] > 0 else "", axis=1)
+    fails['Takeover_Pct'] = fails.apply(lambda row: f"{(row['Takeovers'] / row['Total Failures'] * 100):.1f}%" if row['Total Failures'] > 0 else "", axis=1)
+    
     fig_hotspots = go.Figure()
-    fig_hotspots.add_trace(go.Bar(y=fails['intent'], x=fails['Fallbacks'], name='Fallbacks', orientation='h', marker_color='#f59e0b'))
-    fig_hotspots.add_trace(go.Bar(y=fails['intent'], x=fails['Takeovers'], name='Takeovers', orientation='h', marker_color=FH_RED))
+    fig_hotspots.add_trace(go.Bar(
+        y=fails['intent'], x=fails['Fallbacks'], name='Fallbacks', orientation='h', 
+        marker_color='#f59e0b', text=fails['Fallback_Pct'], textposition='inside', insidetextanchor='middle'
+    ))
+    fig_hotspots.add_trace(go.Bar(
+        y=fails['intent'], x=fails['Takeovers'], name='Takeovers', orientation='h', 
+        marker_color=FH_RED, text=fails['Takeover_Pct'], textposition='inside', insidetextanchor='middle'
+    ))
     
     # 'barmode=stack' stacks the orange and red bars on top of each other
-    fig_hotspots.update_layout(barmode='stack', paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#8b949e", family="Inter"), xaxis=dict(gridcolor="rgba(255,255,255,0.05)", title="Failure Count"), yaxis=dict(title=""), margin=dict(t=10, b=10, l=150, r=10), height=350, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+    # Added tickpad=15 to the y-axis to create spacing between the labels and the bars
+    fig_hotspots.update_layout(
+        barmode='stack', paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
+        font=dict(color="#8b949e", family="Inter"), 
+        xaxis=dict(gridcolor="rgba(255,255,255,0.05)", title="Failure Count"), 
+        yaxis=dict(title="", tickpad=15), 
+        margin=dict(t=10, b=10, l=150, r=10), height=350, 
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
 
     # Return everything back to the Dash UI in the exact order requested by the Outputs
     return g1, g2, g3, g4, mini_row, fig_time, fig_aht, fig_hotspots
