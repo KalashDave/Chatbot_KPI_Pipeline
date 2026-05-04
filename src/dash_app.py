@@ -105,10 +105,10 @@ app.layout = html.Div([
                 html.Div(
                     dcc.DatePickerRange(
                         id='date-picker',
-                        min_date_allowed=df['timestamp'].min().date(),
-                        max_date_allowed=df['timestamp'].max().date(),
-                        start_date=df['timestamp'].min().date(),
-                        end_date=df['timestamp'].max().date(),
+                        min_date_allowed=str(df['timestamp'].min().date()),
+                        max_date_allowed=str(df['timestamp'].max().date()),
+                        start_date=str(df['timestamp'].min().date()),
+                        end_date=str(df['timestamp'].max().date()),
                     ),
                     style={"color": "black"} # Force text black for standard white background
                 )
@@ -235,6 +235,12 @@ def update_dashboard(start_date, end_date, selected_intents):
     """
     
     # --- Step 1: Apply Global Filters ---
+    # Handle case where user clears the date picker (defaults to None)
+    if not start_date:
+        start_date = df['timestamp'].min().date()
+    if not end_date:
+        end_date = df['timestamp'].max().date()
+
     # Filter by Date Range
     mask = (df['timestamp'].dt.date >= pd.to_datetime(start_date).date()) & \
            (df['timestamp'].dt.date <= pd.to_datetime(end_date).date())
@@ -247,9 +253,10 @@ def update_dashboard(start_date, end_date, selected_intents):
     dff = df[mask]
     
     # --- Step 2: Recalculate KPIs ---
-    # Return empty figures if the user's filters eliminated all data
+    # Return empty figures with dark theme if the user's filters eliminated all data
     if dff.empty:
-        return [go.Figure()] * 4 + [[]] + [go.Figure()] * 3
+        empty_fig = go.Figure().update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#8b949e", family="Inter"))
+        return [empty_fig] * 4 + [[]] + [empty_fig] * 3
         
     # Core Volume
     total = len(dff)
@@ -407,13 +414,18 @@ def update_custom(x_axis, y_axis, start_date, end_date, selected_intents):
     if not x_axis or not y_axis:
         return go.Figure().update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
         
+    if not start_date:
+        start_date = df['timestamp'].min().date()
+    if not end_date:
+        end_date = df['timestamp'].max().date()
+        
     mask = (df['timestamp'].dt.date >= pd.to_datetime(start_date).date()) & (df['timestamp'].dt.date <= pd.to_datetime(end_date).date())
     if selected_intents:
         mask = mask & (df['intent'].isin(selected_intents))
     plot_df = df[mask].copy()
     
     if plot_df.empty:
-        return go.Figure()
+        return go.Figure().update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#8b949e", family="Inter"))
 
     # --- Step 1: Determine Grouping Variable (X) ---
     # We map the user's plain-text dropdown selection to the actual dataframe column/datetime extraction
